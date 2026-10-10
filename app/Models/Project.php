@@ -1,14 +1,24 @@
 <?php
 
-namespace App\Models;
+namespace App\Http\Models;
 
-    use Illuminate\Database\Eloquent\Factories\HasFactory;
+    use App\Models\Project;
 
-use Illuminate\Database\Eloquent\Model;
 
-class Project extends Model
+class Project Controller extends Controller
 {
     //
+    public function index()
+    {
+        $projects = Project::all();
+        return view('page.projects', compact('projects'));
+
+
+    public function show($id)
+    {
+        $project = Project::findOrFail($id);
+        return view('page.project-detail', compact('project'));
+    }
     protected $table = 'projects';
 
     protected $fillable = [

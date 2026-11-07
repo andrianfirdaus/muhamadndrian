@@ -18,14 +18,25 @@ class AdminProjectController extends Controller
         return view('admin.projects.create');
     }
 
+    // ==========================================
+    // TAMBAHKAN METHOD SHOW DI SINI:
+    // ==========================================
+    public function show($id)
+    {
+        $project = Project::findOrFail($id);
+        
+        // Sesuaikan nama view ini dengan struktur folder file Blade Anda
+        return view('admin.projects.show', compact('project'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required',
-            'description' => 'required',
-            'teknologi' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'status' => 'required',
+            'title'       => 'required|string|max:255',
+            'teknologi'   => 'required|string|max:255',
+            'status'      => 'required|in:active,archived',
+            'description' => 'nullable|string',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         $imagePath = null;
@@ -67,9 +78,6 @@ class AdminProjectController extends Controller
         $imagePath = $project->image;
 
         if ($request->hasFile('image')) {
-            // if ($project->image) {
-            //     unlink(public_path('images/' . $project->image));
-            // }
             $imagePath = time() . '.' . $request->file('image')->extension();
             $request->file('image')->move(public_path('images'), $imagePath);
             $project->image = $imagePath;
@@ -89,10 +97,6 @@ class AdminProjectController extends Controller
     public function destroy($id)
     {
         $project = Project::findOrFail($id);
-        // if ($project->image) {
-        //     unlink(public_path('images/' . $project->image));
-        // }
-
         $project->delete();
 
         return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');

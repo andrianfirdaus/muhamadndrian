@@ -3,6 +3,94 @@
 Please refer to [UPGRADING](UPGRADING.md) guide for upgrading to a major version.
 
 
+## 8.5.0 - 2026-11-13
+
+### Added
+
+- Add `Utils::setDefaultHandlerFactory()` to replace the default handler
+
+### Changed
+
+- Adjusted `guzzlehttp/psr7` version constraint to `^3.4`
+
+### Deprecated
+
+- Deprecated `Utils::defaultUserAgent()` in favor of `ClientInterface::MAJOR_VERSION`
+- Deprecated `Utils::headersFromLines()`, `Utils::normalizeHeaderKeys()`, `Utils::debugResource()`, and `Utils::normalizeProtocols()`
+
+
+## 8.4.0 - 2026-11-12
+
+### Added
+
+- Add `max_idle_handles` client and cURL handler option to limit idle handles
+
+### Changed
+
+- Adjusted `guzzlehttp/psr7` version constraint to `^3.3`
+- Send longer-path cookies first in the `Cookie` header, like browsers and libcurl
+- Replace stored cookies in place so a refreshed cookie keeps its position in the `Cookie` header
+
+### Fixed
+
+- Fix overlapping stream handler transfers swallowing and mixing up PHP errors
+- Fix the stream handler sending an empty `From` header with no `from` ini set
+
+
+## 8.3.2 - 2026-11-12
+
+### Fixed
+
+- Fix overlapping stream handler transfers leaving the `from` ini setting blank
+
+
+## 8.3.1 - 2026-10-25
+
+### Fixed
+
+- Fix `CookieJar` storing already expired cookies instead of removing the stored cookie
+- Fix `CookieJar` ignoring a same-value cookie that changes its expiry or its `Discard`, `Secure`, or `HttpOnly` flag
+- Fix `SetCookie` renewing the lifetime of `Max-Age` cookies rebuilt from an array, so persisted cookies never expired
+
+
+## 8.3.0 - 2026-10-18
+
+### Changed
+
+- Adjusted `guzzlehttp/promises` version constraint to `^3.1`
+- Adjusted `guzzlehttp/psr7` version constraint to `^3.2`
+- Replace the deprecated `Promise\Is` with `Promise\State` for PHP 8.6
+- Decode chunked stream handler bodies as they arrive, ending at the last chunk
+- Reject truncated and malformed chunked stream handler bodies, like libcurl
+- Reject unsupported response transfer codings, like libcurl 8.14+
+- End stream handler bodies at their declared `Content-Length`, including `0`
+- Throw when a streamed body ends before its declared `Content-Length`
+- Classify cURL errors 8 and 23 with a response as `ResponseTransferException`
+- Reject stream handler gzip and deflate bodies with trailing data, like libcurl
+- Accept raw deflate stream handler bodies, like libcurl
+
+### Fixed
+
+- Fix streamed stream handler bodies delaying bytes that arrived with the headers
+
+
+## 8.2.1 - 2026-10-18
+
+### Fixed
+
+- Fix PHP 8.6 notices for oversized numeric hosts
+- Fix `delay` values over 71 minutes
+- Fix `CurlMultiHandler` delays over 71 minutes
+- Fix overlapping stream handler requests sharing a deadline
+- Fix stream handler responses in Swoole coroutines on PHP 8.4+
+- Fix reads of streamed gzip and deflate responses waiting for 8 KiB of decoded data
+- Fix stream handler accepting corrupt gzip and deflate response bodies
+
+### Changed
+
+- Adjusted `guzzlehttp/psr7` version constraint to `^3.1.1`
+
+
 ## 8.2.0 - 2026-09-06
 
 ### Changed

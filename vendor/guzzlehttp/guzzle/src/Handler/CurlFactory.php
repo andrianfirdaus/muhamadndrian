@@ -26,7 +26,6 @@ use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\TransferStats;
 use GuzzleHttp\TransportSharing;
-use GuzzleHttp\Utils;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -91,7 +90,9 @@ final class CurlFactory implements CurlFactoryInterface
     ];
 
     private const CURL_RESPONSE_TRANSFER_ERRORS = [
+        8 => true,  // CURLE_WEIRD_SERVER_REPLY
         18 => true, // CURLE_PARTIAL_FILE
+        23 => true, // CURLE_WRITE_ERROR from libcurl's content decoders
         61 => true, // CURLE_BAD_CONTENT_ENCODING
     ];
 
@@ -1410,7 +1411,7 @@ final class CurlFactory implements CurlFactoryInterface
         );
 
         if ('' !== $sanitizedError) {
-            $safeUri = Psr7\Utils::redactUriForMessage($uri);
+            $safeUri = Psr7\UriRedactor::redactUriForMessage($uri);
             if ($safeUri !== '' && false === \strpos($sanitizedError, $safeUri)) {
                 $message .= \sprintf(' for %s', $safeUri);
             }
@@ -1523,7 +1524,7 @@ final class CurlFactory implements CurlFactoryInterface
             return $error;
         }
 
-        return Psr7\Utils::redactUserInfoInString($error, $proxy);
+        return Psr7\UriRedactor::redactUserInfoInString($error, $proxy);
     }
 
     /**
@@ -2159,7 +2160,7 @@ final class CurlFactory implements CurlFactoryInterface
         EasyHandle $easy
     ): array {
         $uri = $easy->request->getUri();
-        $protocols = Utils::normalizeProtocols($easy->options['protocols'] ?? ['http', 'https']);
+        $protocols = Protocols::normalize($easy->options['protocols'] ?? ['http', 'https']);
         $scheme = $uri->getScheme();
         if (!\in_array($scheme, $protocols, true)) {
             throw new RequestException(\sprintf('The scheme "%s" is not allowed by the protocols request option.', Psr7\DiagnosticValue::escape($scheme)), $easy->request);
@@ -2854,7 +2855,7 @@ final class CurlFactory implements CurlFactoryInterface
         }
 
         if (!empty($options['debug'])) {
-            $conf[\CURLOPT_STDERR] = Utils::debugResource($options['debug']);
+            $conf[\CURLOPT_STDERR] = DebugResource::from($options['debug']);
             $conf[\CURLOPT_VERBOSE] = true;
         }
     }
